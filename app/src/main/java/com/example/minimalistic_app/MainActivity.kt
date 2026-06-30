@@ -3,146 +3,104 @@ package com.example.minimalistic_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import com.example.minimalistic_app.model.AppInfo
+import com.example.minimalistic_app.screens.AppSelectionScreen
+import com.example.minimalistic_app.ui.theme.MInimalistic_appTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.minimalistic_app.ui.theme.MInimalistic_appTheme
 
-   class MainActivity: ComponentActivity() {
+class MainActivity : ComponentActivity() {
+   override fun onCreate(savedInstanceState: Bundle?) {
+      super.onCreate(savedInstanceState)
 
-      override fun onCreate(savedInstanceState : Bundle?){
-         super.onCreate(savedInstanceState)
-
-         setContent{
-            MInimalistic_appTheme {
-               ScrollStopHome()
-            }
+      setContent {
+         MInimalistic_appTheme {
+            MinimalisticApp()
          }
       }
+   }
 }
+
 @Composable
-fun ScrollStopHome() {
+fun MinimalisticApp() {
 
-   var selectedApp by remember {
-      mutableStateOf("No app selected")
+   var currentScreen by remember { mutableStateOf("home") }
+   var selectedApp by remember { mutableStateOf<AppInfo?>(null) }
+   var timeLimit by remember { mutableStateOf("30 min") }
+
+   val sampleApps = listOf(
+      AppInfo("Instagram", "com.instagram.android"),
+      AppInfo("TikTok", "com.zhiliaoapp.musically"),
+      AppInfo("YouTube", "com.google.android.youtube"),
+      AppInfo("Chrome", "com.android.chrome"),
+      AppInfo("Facebook", "com.facebook.katana"),
+      AppInfo("WhatsApp", "com.whatsapp")
+   )
+
+   if (currentScreen == "home") {
+      HomeScreen(
+         selectedAppName = selectedApp?.name ?: "No app selected",
+         timeLimit = timeLimit,
+         onSelectAppClick = {
+            currentScreen = "select_app"
+         }
+      )
+   } else {
+      AppSelectionScreen(
+         apps = sampleApps,
+         onAppSelected = { app ->
+            selectedApp = app
+            currentScreen = "home"
+         }
+      )
    }
+}
 
-   var timeLimit by remember {
-      mutableStateOf("30 Minutes")
-
-   }
-   var todayUsage by remember {
-      mutableStateOf("0 min")
-   }
-
-   Surface(
-      modifier = Modifier.fillMaxSize()
-
-   ){
-      Column(
-          Modifier.fillMaxSize().padding(24.dp),
-         horizontalAlignment = Alignment.CenterHorizontally,
-         verticalArrangement = Arrangement.Center
+@Composable
+fun HomeScreen(
+   selectedAppName: String,
+   timeLimit: String,
+   onSelectAppClick: () -> Unit
+) {
+   androidx.compose.material3.Surface(
+      modifier = androidx.compose.ui.Modifier.fillMaxSize()
+   ) {
+      androidx.compose.foundation.layout.Column(
+         modifier = androidx.compose.ui.Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+         verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
       ) {
-         Text(
-            text = " Minimalistic",
+         androidx.compose.material3.Text(
+            text = "ScrollStop",
             fontSize = 34.sp,
-            fontWeight = FontWeight.Bold
-         )
-         Text(
-            text = "Reduce Doomscrolling",
-            fontSize = 16.sp
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
          )
 
-         Spacer(modifier = Modifier.height(36.dp))
+         androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(36.dp))
 
-         Text(
-            text = "Selected App",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-         )
-         Text(
-            text = selectedApp,
-            fontSize = 20.sp
-         )
-         Spacer(modifier = Modifier.height(24.dp))
+         androidx.compose.material3.Text(text = "📱 Selected App", fontSize = 18.sp)
+         androidx.compose.material3.Text(text = selectedAppName, fontSize = 20.sp)
 
-         Text(
-               text = "Daily Limit",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-         )
-         Text(
-            text = timeLimit,
-            fontSize = 20.sp
-         )
+         androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(24.dp))
 
-         Spacer(modifier = Modifier.height(24.dp))
+         androidx.compose.material3.Text(text = "⏰ Daily Limit", fontSize = 18.sp)
+         androidx.compose.material3.Text(text = timeLimit, fontSize = 20.sp)
 
-         Text(
-            text = "Today's Usage",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+         androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(36.dp))
 
-         )
-         Text(
-            text = "$todayUsage / $timeLimit",
-            fontSize = 20.sp
-         )
-         Spacer(modifier = Modifier.height(12.dp))
-
-         LinearProgressIndicator(
-            progress = 0.0f,
-            modifier = Modifier.fillMaxWidth()
-         )
-         Spacer(modifier = Modifier.height(36.dp))
-
-         Button(
-            onClick = {
-               selectedApp = "Instagram"
-
-            },
-            modifier = Modifier.fillMaxWidth()
+         androidx.compose.material3.Button(
+            onClick = onSelectAppClick,
+            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
          ) {
-            Text("Selected App")
-         }
-         Spacer(modifier = Modifier.height(12.dp))
-
-         Button(
-            onClick = {
-               timeLimit = "15 min"
-            },
-            modifier = Modifier.fillMaxWidth()
-         ){
-            Text(" Set Daily Limit")
-         }
-         Spacer(modifier = Modifier.height(16.dp))
-         Button(
-            onClick = {
-
-            },
-            modifier = Modifier.fillMaxWidth()
-         )  {
-            Text(" Start Protection")
+            androidx.compose.material3.Text("Select App")
          }
       }
    }
